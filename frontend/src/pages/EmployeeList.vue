@@ -43,6 +43,7 @@
                 <Button v-if="row.user" theme="blue" variant="outline" @click="openResetPassword(row)">
                   Reset Password
                 </Button>
+                <Button theme="red" variant="outline" @click="openDeleteDialog(row)">Delete</Button>
               </div>
             </td>
           </tr>
@@ -69,19 +70,36 @@
       :user="selectedEmployee?.user"
       :user-label="selectedEmployee?.employee_name"
     />
+    <Dialog v-model="showDeleteDialog" :options="{ title: 'Delete Employee', size: 'sm' }">
+      <template #body-content>
+        <p class="text-sm text-gray-600">
+          Delete <span class="font-medium text-gray-900">{{ selectedEmployee?.employee_name }}</span> permanently?
+          This will also delete their login, time logs, salary advances, sales entries, payment entries, and trips.
+          This action cannot be undone.
+        </p>
+        <ErrorMessage class="mt-3 block" :message="deleteEmployee.error" />
+      </template>
+      <template #actions>
+        <Button theme="red" variant="solid" class="w-full" :loading="deleteEmployee.loading" @click="confirmDelete">
+          Delete Employee Permanently
+        </Button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Button, Badge, createListResource } from 'frappe-ui'
+import { Badge, Button, createListResource, createResource, Dialog, ErrorMessage } from 'frappe-ui'
 import EmployeeFormDialog from '@/components/EmployeeFormDialog.vue'
 import EmployeeEditDialog from '@/components/EmployeeEditDialog.vue'
 import ResetPasswordDialog from '@/components/ResetPasswordDialog.vue'
+import { showError, showSuccess } from '@/utils/toast'
 
 const showNewDialog = ref(false)
 const showEditDialog = ref(false)
 const showResetDialog = ref(false)
+const showDeleteDialog = ref(false)
 const editingEmployee = ref(null)
 const selectedEmployee = ref(null)
 
@@ -122,6 +140,10 @@ const employees = createListResource({
   auto: true,
 })
 
+const deleteEmployee = createResource({
+  url: 'neer_jal.api.employees.delete_employee',
+})
+
 function openEdit(row) {
   editingEmployee.value = row
   showEditDialog.value = true
@@ -130,6 +152,29 @@ function openEdit(row) {
 function openResetPassword(row) {
   selectedEmployee.value = row
   showResetDialog.value = true
+}
+
+function openDeleteDialog(row) {
+  selectedEmployee.value = row
+  showDeleteDialog.value = true
+}
+
+function confirmDelete() {
+  if (!selectedEmployee.value) return
+  deleteEmployee.submit(
+    { name: selectedEmployee.value.name },
+    {
+      onSuccess() {
+        showDeleteDialog.value = false
+        showSuccess('Employee and associated records deleted')
+        selectedEmployee.value = null
+        employees.reload()
+      },
+      onError(error) {
+        showError(error, 'Could not delete employee')
+      },
+    },
+  )
 }
 
 function roleTheme(role) {
