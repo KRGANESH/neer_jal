@@ -23,11 +23,11 @@ def get_trip_permission_query(user):
 	user = user or frappe.session.user
 	if MANAGER_ROLES & set(frappe.get_roles(user)):
 		return ""
-	return f"`tabTrip`.sales_person = {frappe.db.escape(user)}"
+	return f"`tabTrip`.driver = {frappe.db.escape(user)}"
 
 
 def has_trip_permission(doc, user=None, permission_type=None):
 	user = user or frappe.session.user
 	if MANAGER_ROLES & set(frappe.get_roles(user)):
 		return True
-	return doc.sales_person == user
+	return doc.driver == user

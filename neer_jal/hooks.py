@@ -40,7 +40,7 @@ website_route_rules = [
 	{"from_route": "/neer_jal/customers", "to_route": "neer_jal"},
 	{"from_route": "/neer_jal/sales", "to_route": "neer_jal"},
 	{"from_route": "/neer_jal/vehicles", "to_route": "neer_jal"},
-	{"from_route": "/neer_jal/drivers", "to_route": "neer_jal"},
+	{"from_route": "/neer_jal/trip-routes", "to_route": "neer_jal"},
 	{"from_route": "/neer_jal/employees", "to_route": "neer_jal"},
 	{"from_route": "/neer_jal/time-clock", "to_route": "neer_jal"},
 	{"from_route": "/neer_jal/time-clock/<path:employee>", "to_route": "neer_jal"},

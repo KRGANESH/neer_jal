@@ -11,10 +11,10 @@
         />
         <FormControl
           type="select"
-          label="Driver"
+          label="Trip Route"
           required
-          :options="driverOptions"
-          v-model="form.driver"
+          :options="routeOptions"
+          v-model="form.trip_route"
         />
         <FormControl type="number" label="Starting KM (Odometer)" required v-model="form.start_km" />
         <FormControl
@@ -59,11 +59,11 @@ const vehicles = createListResource({
   auto: true,
 })
 
-const drivers = createListResource({
-  doctype: 'Driver',
-  fields: ['name', 'driver_name'],
+const routes = createListResource({
+  doctype: 'Trip Route',
+  fields: ['name', 'route_name', 'route_price'],
   filters: { disabled: 0 },
-  orderBy: 'driver_name asc',
+  orderBy: 'route_name asc',
   pageLength: 100,
   auto: true,
 })
@@ -75,12 +75,15 @@ const vehicleOptions = computed(() =>
   })),
 )
 
-const driverOptions = computed(() =>
-  (drivers.data || []).map((d) => ({ label: d.driver_name, value: d.name })),
+const routeOptions = computed(() =>
+  (routes.data || []).map((route) => ({
+    label: `${route.route_name} (${Number(route.route_price || 0).toFixed(2)})`,
+    value: route.name,
+  })),
 )
 
 function emptyForm() {
-  return { vehicle: '', driver: '', start_km: 0, cans_loaded: 0 }
+  return { vehicle: '', trip_route: '', start_km: 0, cans_loaded: 0 }
 }
 
 let form = reactive(emptyForm())
@@ -94,8 +97,8 @@ const startTrip = createResource({
 })
 
 function submit() {
-  if (!form.vehicle || !form.driver) {
-    showError('Please select a vehicle and driver')
+  if (!form.vehicle || !form.trip_route) {
+    showError('Please select a vehicle and trip route')
     return
   }
   if (!form.cans_loaded || Number(form.cans_loaded) <= 0) {
@@ -107,7 +110,7 @@ function submit() {
       doc: {
         doctype: 'Trip',
         vehicle: form.vehicle,
-        driver: form.driver,
+        trip_route: form.trip_route,
         start_km: form.start_km,
         cans_loaded: form.cans_loaded,
       },

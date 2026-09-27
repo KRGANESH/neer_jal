@@ -28,11 +28,6 @@ const routes = [
     component: () => import('@/pages/VehicleList.vue'),
   },
   {
-    path: '/drivers',
-    name: 'DriverList',
-    component: () => import('@/pages/DriverList.vue'),
-  },
-  {
     path: '/employees',
     name: 'EmployeeList',
     component: () => import('@/pages/EmployeeList.vue'),
@@ -68,6 +63,11 @@ const routes = [
     name: 'TripDetail',
     component: () => import('@/pages/TripDetail.vue'),
     props: true,
+  },
+  {
+    path: '/trip-routes',
+    name: 'TripRouteList',
+    component: () => import('@/pages/TripRouteList.vue'),
   },
   {
     path: '/reports',

@@ -10,10 +10,13 @@
   "vehicle",
   "driver",
   "sales_person",
+    "trip_route",
   "status",
   "column_break_main",
   "start_km",
   "cans_loaded",
+    "route_price",
+    "driver_credit",
   "start_time",
   "end_km",
   "cans_delivered",
@@ -38,18 +41,25 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Driver",
-   "options": "Driver",
+  "default": "__user",
+    "options": "User",
    "reqd": 1
+  },
+  {
+    "fieldname": "trip_route",
+    "fieldtype": "Link",
+    "in_list_view": 1,
+    "label": "Trip Route",
+    "options": "Trip Route"
   },
   {
    "default": "__user",
    "fieldname": "sales_person",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
+    "hidden": 1,
    "label": "Sales Person",
-   "options": "User",
-   "reqd": 1
+    "options": "User",
+    "read_only": 1
   },
   {
    "default": "Active",
@@ -80,6 +90,20 @@
    "non_negative": 1,
    "reqd": 1
   },
+    {
+     "default": "0",
+     "fieldname": "route_price",
+     "fieldtype": "Currency",
+     "label": "Trip Route Price",
+     "read_only": 1
+    },
+    {
+     "default": "0",
+     "fieldname": "driver_credit",
+     "fieldtype": "Currency",
+     "label": "Driver Credit",
+     "read_only": 1
+    },
   {
    "default": "now",
    "fieldname": "start_time",

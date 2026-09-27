@@ -26,7 +26,7 @@
           label="Role"
           :options="roleOptions"
           v-model="form.role"
-          description="Leave as 'Others' for a normal employee. Only Sales Person and Office Staff get an app login."
+          description="Leave as 'Others' for a normal employee. Only Driver and Office Staff get an app login."
         />
         <template v-if="form.role">
           <FormControl
@@ -110,7 +110,7 @@ const show = computed({
 
 const roleOptions = [
   { label: 'Others (no login)', value: '' },
-  { label: 'Sales Person', value: 'Sales Person' },
+  { label: 'Driver', value: 'Driver' },
   { label: 'Office Staff', value: 'Office Staff' },
 ]
 

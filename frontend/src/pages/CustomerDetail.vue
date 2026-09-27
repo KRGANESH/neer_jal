@@ -121,7 +121,7 @@
             <th class="px-4 py-3 font-medium">Rate</th>
             <th class="px-4 py-3 font-medium">Amount</th>
             <th class="px-4 py-3 font-medium">Payment</th>
-            <th class="px-4 py-3 font-medium">Delivered By</th>
+            <th class="px-4 py-3 font-medium">Driver</th>
           </tr>
         </thead>
         <tbody>
@@ -166,7 +166,7 @@
             <th class="px-4 py-3 font-medium">Date</th>
             <th class="px-4 py-3 font-medium">Amount</th>
             <th class="px-4 py-3 font-medium">Mode</th>
-            <th class="px-4 py-3 font-medium">LCR Settled For</th>
+            <th class="px-4 py-3 font-medium">Driver LCR Settled For</th>
             <th class="px-4 py-3 font-medium">Received By</th>
             <th class="px-4 py-3 font-medium">Notes</th>
           </tr>

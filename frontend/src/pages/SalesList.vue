@@ -39,7 +39,7 @@
             <th class="px-4 py-3 font-medium">Rate</th>
             <th class="px-4 py-3 font-medium">Amount</th>
             <th class="px-4 py-3 font-medium">Payment</th>
-            <th class="px-4 py-3 font-medium">Delivered By</th>
+            <th class="px-4 py-3 font-medium">Driver</th>
             <th class="px-4 py-3 font-medium">Trip</th>
           </tr>
         </thead>

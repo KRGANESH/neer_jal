@@ -3,7 +3,7 @@
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">Employees</h1>
-        <p class="text-sm text-gray-500">Staff, sales team logins and office staff logins</p>
+        <p class="text-sm text-gray-500">Staff, driver logins and office staff logins</p>
       </div>
       <Button theme="blue" variant="solid" class="w-full sm:w-auto" @click="showNewDialog = true">
         + New Employee
@@ -178,7 +178,7 @@ function confirmDelete() {
 }
 
 function roleTheme(role) {
-  return { 'Sales Person': 'blue', 'Office Staff': 'orange' }[role] || 'gray'
+  return { Driver: 'blue', 'Sales Person': 'blue', 'Office Staff': 'orange' }[role] || 'gray'
 }
 
 function formatCurrency(value) {

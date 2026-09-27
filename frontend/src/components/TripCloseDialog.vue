@@ -4,6 +4,8 @@
       <div class="boxed-fields grid grid-cols-1 gap-4">
         <FormControl label="Vehicle" :model-value="trip?.vehicle" disabled />
         <FormControl label="Starting KM" :model-value="trip?.start_km" disabled />
+        <FormControl label="Trip Route" :model-value="trip?.trip_route" disabled />
+        <FormControl label="Driver Credit on Completion" :model-value="trip?.route_price || 0" disabled />
         <FormControl type="number" label="Ending KM (Odometer)" required v-model="endKm" />
         <FormControl label="Cans Loaded" :model-value="currentTrip?.cans_loaded" disabled />
         <FormControl

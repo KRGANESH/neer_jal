@@ -101,7 +101,7 @@ const navItems = computed(() => {
   if (isManager.value) {
     items.push(
       { label: 'Vehicles', to: '/vehicles' },
-      { label: 'Drivers', to: '/drivers' },
+      { label: 'Trip Routes', to: '/trip-routes' },
       { label: 'Employees', to: '/employees' },
       { label: 'Reports', to: '/reports' },
       { label: 'LCR', to: '/lcr' },
