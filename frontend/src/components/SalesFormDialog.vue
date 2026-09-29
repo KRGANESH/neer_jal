@@ -54,7 +54,7 @@
         This amount will be added to the customer's pending dues (company's responsibility to collect).
       </p>
       <p v-if="form.payment_mode === 'LCR'" class="mt-3 text-xs text-orange-500">
-        This amount becomes the sales person's personal responsibility to collect and settle later - it will
+        This amount becomes the driver's personal responsibility to collect and settle later - it will
         not be added to the customer's company dues.
       </p>
       <ErrorMessage class="mt-3 block" :message="listResource.insert.error" />

@@ -98,7 +98,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Role",
-   "options": "\nSales Person\nOffice Staff"
+    "options": "\nDriver\nOffice Staff"
   },
   {
    "fieldname": "user",

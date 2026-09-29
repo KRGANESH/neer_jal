@@ -8,9 +8,8 @@ from neer_jal.api.users import SALES_USER_EMAIL_DOMAIN, USERNAME_PATTERN, _ensur
 from neer_jal.neer_jal.utils import validate_phone_number
 
 # UI label -> the actual Frappe Role granted to the login created for that employee.
-# "Sales Person" maps to the pre-existing "Sales User" role so it plugs into all
-# existing sales/trip permission checks unchanged.
 ROLE_MAP = {
+	"Driver": "Sales User",
 	"Sales Person": "Sales User",
 	"Office Staff": "Office Staff",
 }
@@ -192,6 +191,41 @@ def update_employee(
 			frappe.db.set_value("User", employee.user, "enabled", 0 if employee.disabled else 1)
 	employee.save(ignore_permissions=True)
 	return employee.as_dict()
+
+
+@frappe.whitelist()
+def delete_employee(name):
+	_ensure_manager()
+	employee = frappe.get_doc("Employee", name)
+	user = employee.user
+	deleted = {}
+
+	# Remove records that reference the employee or their login before removing the links.
+	for doctype, filters in (
+		("Time Log", {"employee": employee.name}),
+		("Salary Advance", {"employee": employee.name}),
+		("Sales Entry", {"sales_person": user}),
+		("Payment Entry", {"sales_person": user}),
+		("Driver Credit", {"driver": user}),
+		("Trip", {"driver": user}),
+		("Trip", {"sales_person": user}),
+	):
+		if not user and ({"sales_person", "driver"} & set(filters)):
+			continue
+		doc_names = frappe.get_all(doctype, filters=filters, pluck="name")
+		for doc_name in doc_names:
+			frappe.delete_doc(doctype, doc_name, ignore_permissions=True)
+		if doc_names:
+			deleted[doctype] = len(doc_names)
+
+	frappe.delete_doc("Employee", employee.name, ignore_permissions=True)
+	deleted["Employee"] = 1
+
+	if user and frappe.db.exists("User", user):
+		frappe.delete_doc("User", user, ignore_permissions=True)
+		deleted["User"] = 1
+
+	return {"deleted": deleted}
 
 
 @frappe.whitelist()

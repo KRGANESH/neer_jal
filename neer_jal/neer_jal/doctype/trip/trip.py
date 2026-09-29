@@ -8,12 +8,27 @@ from frappe.utils import cint, flt, now_datetime
 
 class Trip(Document):
 	def before_insert(self):
+		if "Sales User" not in frappe.get_roles():
+			frappe.throw("Only a driver login can start a trip")
+
+		self.driver = frappe.session.user
+		self.sales_person = self.driver
+		if not self.trip_route:
+			frappe.throw("Please select a trip route")
+
+		route = frappe.db.get_value(
+			"Trip Route", self.trip_route, ["route_price", "disabled"], as_dict=True
+		)
+		if not route or route.disabled:
+			frappe.throw("Please select an active trip route")
+		self.route_price = flt(route.route_price)
+
 		existing = frappe.db.get_value(
-			"Trip", {"sales_person": self.sales_person, "status": "Active"}, "name"
+			"Trip", {"driver": self.driver, "status": "Active"}, "name"
 		)
 		if existing:
 			frappe.throw(
-				f"{self.sales_person} already has an active trip ({existing}). "
+				f"{self.driver} already has an active trip ({existing}). "
 				"Please close it before starting a new one."
 			)
 
@@ -30,6 +45,14 @@ class Trip(Document):
 			)
 
 	def validate(self):
+		previous = self.get_doc_before_save() if not self.is_new() else None
+		if previous:
+			if previous.status == "Completed" and not self.end_km:
+				frappe.throw("A completed trip cannot be reopened")
+			self.driver = previous.driver
+			self.trip_route = previous.trip_route
+			self.route_price = previous.route_price
+
 		if not self.start_time:
 			self.start_time = now_datetime()
 
@@ -49,7 +72,25 @@ class Trip(Document):
 			if not self.end_time:
 				self.end_time = now_datetime()
 			self.status = "Completed"
+			self.driver_credit = flt(self.route_price)
 		else:
 			self.distance_km = 0
 			self.end_time = None
 			self.status = "Active"
+			self.driver_credit = 0
+
+	def on_update(self):
+		if self.status != "Completed" or not self.trip_route:
+			return
+		if frappe.db.exists("Driver Credit", {"trip": self.name}):
+			return
+
+		frappe.get_doc(
+			{
+				"doctype": "Driver Credit",
+				"driver": self.driver,
+				"trip": self.name,
+				"credit_date": self.end_time.date(),
+				"amount": self.driver_credit,
+			}
+		).insert(ignore_permissions=True)

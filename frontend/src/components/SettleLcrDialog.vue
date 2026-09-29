@@ -4,7 +4,7 @@
       <div class="boxed-fields grid grid-cols-1 gap-4">
         <FormControl
           type="select"
-          label="Sales Person"
+          label="Driver"
           required
           :options="salesPersonOptions"
           v-model="form.sales_person"
@@ -32,7 +32,7 @@
         <FormControl type="textarea" label="Notes" v-model="form.notes" />
       </div>
       <p class="mt-3 text-xs text-gray-400">
-        This marks the selected sales person's LCR for this customer as settled.
+        This marks the selected driver's LCR for this customer as settled.
       </p>
       <ErrorMessage class="mt-3 block" :message="settle.error" />
     </template>
@@ -109,7 +109,7 @@ const customerOptions = computed(() => [
 ])
 
 const salesPersonOptions = computed(() => [
-  { label: 'Select a sales person', value: '' },
+  { label: 'Select a driver', value: '' },
   ...(salesPersons.data || []).map((u) => ({ label: u.full_name, value: u.name })),
 ])
 

@@ -28,7 +28,9 @@
       <div class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <div><span class="text-gray-500">Vehicle:</span> <span class="text-gray-900">{{ trip.doc.vehicle }}</span></div>
         <div><span class="text-gray-500">Driver:</span> <span class="text-gray-900">{{ trip.doc.driver }}</span></div>
-        <div><span class="text-gray-500">Sales Person:</span> <span class="text-gray-900">{{ trip.doc.sales_person }}</span></div>
+        <div><span class="text-gray-500">Trip Route:</span> <span class="text-gray-900">{{ routeLabel(trip.doc.trip_route) }}</span></div>
+        <div><span class="text-gray-500">Route Price:</span> <span class="text-gray-900">{{ formatCurrency(trip.doc.route_price) }}</span></div>
+        <div><span class="text-gray-500">Driver Credit:</span> <span class="text-gray-900">{{ formatCurrency(trip.doc.driver_credit) }}</span></div>
         <div><span class="text-gray-500">Starting KM:</span> <span class="text-gray-900">{{ trip.doc.start_km }}</span></div>
         <div><span class="text-gray-500">Ending KM:</span> <span class="text-gray-900">{{ trip.doc.end_km || '-' }}</span></div>
         <div><span class="text-gray-500">Distance:</span> <span class="text-gray-900">{{ trip.doc.distance_km || '-' }} km</span></div>
@@ -136,8 +138,23 @@ const sales = createListResource({
   auto: true,
 })
 
+const routes = createListResource({
+  doctype: 'Trip Route',
+  fields: ['name', 'route_name'],
+  pageLength: 200,
+  auto: true,
+})
+
+function routeLabel(route) {
+  return routes.data?.find((item) => item.name === route)?.route_name || route || '-'
+}
+
 function paymentTheme(mode) {
   return { Cash: 'green', UPI: 'blue', Pending: 'red', LCR: 'orange', Free: 'gray' }[mode] || 'gray'
+}
+
+function formatCurrency(value) {
+  return (Number(value) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function onClosed() {

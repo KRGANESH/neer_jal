@@ -4,7 +4,7 @@
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">LCR</h1>
         <p class="text-sm text-gray-500">
-          Money a sales person personally took responsibility for collecting from a customer
+          Money a driver personally took responsibility for collecting from a customer
         </p>
       </div>
       <Button theme="blue" variant="solid" class="w-full sm:w-auto" @click="openSettleFresh">
@@ -16,7 +16,7 @@
       <table class="w-full min-w-[560px] text-left text-sm">
         <thead class="border-b bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th class="px-4 py-3 font-medium">Sales Person</th>
+            <th class="px-4 py-3 font-medium">Driver</th>
             <th class="px-4 py-3 font-medium">Customer</th>
             <th class="px-4 py-3 font-medium">Amount Pending</th>
             <th class="px-4 py-3 font-medium"></th>

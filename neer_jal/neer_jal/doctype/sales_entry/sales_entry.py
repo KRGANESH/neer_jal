@@ -45,7 +45,7 @@ class SalesEntry(Document):
 
 	def link_active_trip(self):
 		active_trip = frappe.db.get_value(
-			"Trip", {"sales_person": self.sales_person, "status": "Active"}, "name"
+			"Trip", {"driver": self.sales_person, "status": "Active"}, "name"
 		)
 		if active_trip:
 			self.trip = active_trip

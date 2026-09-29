@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-6xl p-4 sm:p-6">
     <div class="mb-6">
       <h1 class="text-2xl font-semibold text-gray-900">Reports</h1>
-      <p class="text-sm text-gray-500">Filter deliveries by date, customer or sales person</p>
+      <p class="text-sm text-gray-500">Filter deliveries and trip sheets by date, customer or driver</p>
     </div>
 
     <div class="boxed-fields mb-6 grid grid-cols-1 gap-4 rounded-lg border bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -16,16 +16,19 @@
       />
       <FormControl
         type="select"
-        label="Sales Person"
-        :options="salesPersonOptions"
-        v-model="filters.sales_person"
+        label="Driver"
+        :options="driverOptions"
+        v-model="filters.driver"
       />
       <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
-        <Button theme="blue" variant="solid" :loading="report.loading" @click="search">
+        <Button theme="blue" variant="solid" :loading="report.loading || tripSheet.loading" @click="search">
           Search
         </Button>
         <Button theme="blue" variant="outline" :loading="downloading" @click="downloadPdf">
-          Export PDF
+          Delivery PDF
+        </Button>
+        <Button theme="blue" variant="outline" :loading="tripSheetDownloading" @click="downloadTripSheetPdf">
+          Trip Sheet PDF
         </Button>
       </div>
     </div>
@@ -62,7 +65,7 @@
           <tr>
             <th class="px-4 py-3 font-medium">Date</th>
             <th class="px-4 py-3 font-medium">Customer</th>
-            <th class="px-4 py-3 font-medium">Sales Person</th>
+            <th class="px-4 py-3 font-medium">Driver</th>
             <th class="px-4 py-3 font-medium">Given</th>
             <th class="px-4 py-3 font-medium">Refill</th>
             <th
@@ -78,7 +81,7 @@
           <tr v-for="row in pagedEntries" :key="row.name" class="border-b last:border-0">
             <td class="px-4 py-3 text-gray-600">{{ row.sales_date }}</td>
             <td class="px-4 py-3 font-medium text-gray-900">{{ row.customer_name || row.customer }}</td>
-            <td class="px-4 py-3 text-gray-600">{{ row.sales_person_name || row.sales_person }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ row.driver_name || row.driver }}</td>
             <td class="px-4 py-3 text-gray-600">{{ row.cans_given }}</td>
             <td class="px-4 py-3 text-gray-600">{{ row.cans_returned }}</td>
             <td
@@ -121,6 +124,52 @@
         Next
       </Button>
     </div>
+
+    <section class="mt-10">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Driver Trip Sheet</h2>
+        <p class="text-sm text-gray-500">Trip routes, earned driver credit and customer deliveries for the selected period</p>
+      </div>
+      <div v-if="tripSheet.data" class="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-5">
+        <div class="rounded-lg border bg-white p-4"><p class="text-xs font-semibold uppercase text-gray-500">Trips</p><p class="mt-1 text-2xl font-semibold text-gray-900">{{ tripSheet.data.totals.trips }}</p></div>
+        <div class="rounded-lg border bg-white p-4"><p class="text-xs font-semibold uppercase text-gray-500">Completed</p><p class="mt-1 text-2xl font-semibold text-gray-900">{{ tripSheet.data.totals.completed_trips }}</p></div>
+        <div class="rounded-lg border bg-white p-4"><p class="text-xs font-semibold uppercase text-gray-500">Route Price Total</p><p class="mt-1 text-xl font-semibold text-gray-900">{{ formatCurrency(tripSheet.data.totals.route_price) }}</p></div>
+        <div class="rounded-lg border bg-white p-4"><p class="text-xs font-semibold uppercase text-gray-500">Driver Credit</p><p class="mt-1 text-xl font-semibold text-gray-900">{{ formatCurrency(tripSheet.data.totals.driver_credit) }}</p></div>
+        <div class="rounded-lg border bg-white p-4"><p class="text-xs font-semibold uppercase text-gray-500">Deliveries</p><p class="mt-1 text-2xl font-semibold text-gray-900">{{ tripSheet.data.totals.deliveries }}</p></div>
+      </div>
+      <div v-if="tripSheet.data" class="overflow-x-auto rounded-lg border bg-white">
+        <table class="w-full min-w-[1040px] text-left text-sm">
+          <thead class="border-b bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+              <th class="px-4 py-3 font-medium">Date</th><th class="px-4 py-3 font-medium">Trip</th><th class="px-4 py-3 font-medium">Driver</th><th class="px-4 py-3 font-medium">Route</th>
+              <th class="px-4 py-3 font-medium">Status</th><th class="px-4 py-3 font-medium">Route Price</th><th class="px-4 py-3 font-medium">Driver Credit</th>
+              <th class="px-4 py-3 font-medium">Deliveries</th><th class="px-4 py-3 font-medium">Cans Given</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="trip in tripSheet.data.trips" :key="trip.name">
+              <tr class="border-b">
+                <td class="px-4 py-3 text-gray-600">{{ trip.start_time }}</td><td class="px-4 py-3 font-medium">{{ trip.name }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ trip.driver_name }}</td><td class="px-4 py-3 text-gray-600">{{ trip.route_name }}</td><td class="px-4 py-3">{{ trip.status }}</td>
+                <td class="px-4 py-3">{{ formatCurrency(trip.route_price) }}</td><td class="px-4 py-3">{{ formatCurrency(trip.driver_credit) }}</td>
+                <td class="px-4 py-3">{{ trip.deliveries.length }}</td><td class="px-4 py-3">{{ trip.cans_delivered || 0 }}</td>
+              </tr>
+              <tr v-for="delivery in trip.deliveries" :key="delivery.name" class="border-b bg-gray-50 text-xs">
+                <td colspan="9" class="px-4 py-2 text-gray-600">
+                  Delivery {{ delivery.sales_date }}: {{ delivery.customer_name || delivery.customer }}
+                  · {{ delivery.cans_given }} cans given · {{ delivery.cans_returned }} refilled
+                  · {{ formatCurrency(delivery.amount) }} ({{ delivery.payment_mode }})
+                </td>
+              </tr>
+            </template>
+            <tr v-if="!tripSheet.data.trips.length"><td colspan="9" class="px-4 py-10 text-center text-gray-400">No trips found for these filters</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="!tripSheet.data" class="rounded-lg border bg-white px-4 py-10 text-center text-gray-400">
+        Search to load the driver trip sheet
+      </div>
+    </section>
   </div>
 </template>
 
@@ -144,7 +193,7 @@ const filters = reactive({
   from_date: daysAgo(30),
   to_date: today(),
   customer: '',
-  sales_person: '',
+  driver: '',
 })
 
 const pageLength = 10
@@ -158,7 +207,7 @@ const customers = createListResource({
   auto: true,
 })
 
-const salesPersons = createResource({
+const drivers = createResource({
   url: 'neer_jal.api.users.list_sales_users',
   auto: true,
   params: { start: 0, page_length: 200 },
@@ -170,13 +219,17 @@ const customerOptions = computed(() => [
   ...(customers.data || []).map((c) => ({ label: `${c.customer_code ? c.customer_code + ' - ' : ''}${c.customer_name}`, value: c.name })),
 ])
 
-const salesPersonOptions = computed(() => [
-  { label: 'All Sales Persons', value: '' },
-  ...(salesPersons.data || []).map((u) => ({ label: u.full_name, value: u.name })),
+const driverOptions = computed(() => [
+  { label: 'All Drivers', value: '' },
+  ...(drivers.data || []).map((u) => ({ label: u.full_name, value: u.name })),
 ])
 
 const report = createResource({
   url: 'neer_jal.api.reports.get_delivery_report',
+})
+
+const tripSheet = createResource({
+  url: 'neer_jal.api.reports.get_driver_trip_sheet',
 })
 
 function search() {
@@ -190,6 +243,14 @@ function search() {
     {
       onError(error) {
         showError(error, 'Could not load report')
+      },
+    },
+  )
+  tripSheet.submit(
+    { from_date: filters.from_date, to_date: filters.to_date, driver: filters.driver },
+    {
+      onError(error) {
+        showError(error, 'Could not load driver trip sheet')
       },
     },
   )
@@ -220,7 +281,7 @@ async function downloadPdf() {
     to_date: filters.to_date,
   })
   if (filters.customer) params.set('customer', filters.customer)
-  if (filters.sales_person) params.set('sales_person', filters.sales_person)
+  if (filters.driver) params.set('driver', filters.driver)
   const url = `/api/method/neer_jal.api.reports.download_delivery_report_pdf?${params.toString()}`
   const filename = `delivery-report-${filters.from_date}-to-${filters.to_date}.pdf`
   try {
@@ -229,6 +290,28 @@ async function downloadPdf() {
     // downloadFile already surfaced a toast
   } finally {
     downloading.value = false
+  }
+}
+
+const tripSheetDownloading = ref(false)
+
+async function downloadTripSheetPdf() {
+  if (!filters.from_date || !filters.to_date) {
+    showError('Please choose both a from and to date')
+    return
+  }
+  tripSheetDownloading.value = true
+  const params = new URLSearchParams({ from_date: filters.from_date, to_date: filters.to_date })
+  if (filters.driver) params.set('driver', filters.driver)
+  try {
+    await downloadFile(
+      `/api/method/neer_jal.api.reports.download_driver_trip_sheet_pdf?${params.toString()}`,
+      `driver-trip-sheet-${filters.from_date}-to-${filters.to_date}.pdf`,
+    )
+  } catch {
+    // downloadFile already surfaced a toast
+  } finally {
+    tripSheetDownloading.value = false
   }
 }
 
