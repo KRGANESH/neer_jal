@@ -63,6 +63,3 @@ bench --site <site-name> install-app neer_jal
 
 Roles (Sales Manager, Sales User, Office Staff) ship as fixtures and are created automatically on install.
 
-### License
-
-mit
